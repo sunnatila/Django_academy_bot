@@ -61,12 +61,23 @@ class Group(models.Model):
     objects = models.Manager()
 
     def __str__(self):
-        return f"{self.group_number}"
+        return f"{self.pk} - {self.group_number}"
 
     class Meta:
         verbose_name_plural = "Guruhlar"
         verbose_name = "Guruh "
         db_table = 'groups'
+
+    def save(self, *args, **kwargs):
+        if not self.pk:
+            last_group = Group.objects.order_by('-id').first()
+            if last_group:
+                self.id = last_group.id + 1
+            else:
+                self.id = 1
+
+        super().save(*args, **kwargs)
+
 
 class Topic(models.Model):
     topic_name = models.CharField(max_length=100)
